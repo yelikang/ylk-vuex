@@ -1,7 +1,16 @@
+/*
+ * @Description: 
+ * @Autor: lizi
+ * @Date: 2022-05-25 16:28:14
+ * @LastEditors: lizi
+ * @LastEditTime: 2022-05-27 14:51:54
+ * @FilePath: \ylk-vuex\src\mixin.js
+ */
 export default function (Vue) {
   const version = Number(Vue.version.split('.')[0])
 
   if (version >= 2) {
+    // 所有组件都混入beforeCreate钩子函数
     Vue.mixin({ beforeCreate: vuexInit })
   } else {
     // override init and inject vuex init procedure
@@ -23,10 +32,12 @@ export default function (Vue) {
     const options = this.$options
     // store injection
     if (options.store) {
+      // 根组件赋值$store
       this.$store = typeof options.store === 'function'
         ? options.store()
         : options.store
     } else if (options.parent && options.parent.$store) {
+      // 子组件取父组件的$store，保证子组件都能访问到$store属性
       this.$store = options.parent.$store
     }
   }
