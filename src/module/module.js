@@ -5,6 +5,7 @@ export default class Module {
   constructor (rawModule, runtime) {
     this.runtime = runtime
     // Store some children item
+    // 子Module
     this._children = Object.create(null)
     // Store the origin module object which passed by programmer
     this._rawModule = rawModule

@@ -21,6 +21,7 @@ export default function createLogger ({
     }
 
     if (logMutations) {
+      // 订阅mutation改变之后的回调函数
       store.subscribe((mutation, state) => {
         const nextState = deepCopy(state)
 

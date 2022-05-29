@@ -136,7 +136,7 @@ export const createNamespacedHelpers = (namespace) => ({
 })
 
 /**
- * Normalize the map
+ * Normalize the map 将传入的map对象格式化mapXXX('user',['age','sex'])、mapXXX('user',{c_age:'age',c_sex:'sex'})
  * normalizeMap([1, 2, 3]) => [ { key: 1, val: 1 }, { key: 2, val: 2 }, { key: 3, val: 3 } ]
  * normalizeMap({a: 1, b: 2, c: 3}) => [ { key: 'a', val: 1 }, { key: 'b', val: 2 }, { key: 'c', val: 3 } ]
  * @param {Array|Object} map
@@ -167,10 +167,12 @@ function isValidMap (map) {
  */
 function normalizeNamespace (fn) {
   return (namespace, map) => {
+    // 传递namespace参数 mapState('user',{age:'age'})
     if (typeof namespace !== 'string') {
       map = namespace
       namespace = ''
     } else if (namespace.charAt(namespace.length - 1) !== '/') {
+    // 不传递namespace参数，写在一起 mapState('user/age')
       namespace += '/'
     }
     return fn(namespace, map)

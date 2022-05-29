@@ -11,6 +11,7 @@ export class Store {
     // To allow users to avoid auto-installation in some cases,
     // this code should be placed here. See #731
     if (!Vue && typeof window !== 'undefined' && window.Vue) {
+      // 通过外链方式引入Vue，在new Vuex.Store的时候就会自动注册Vuex组件，不需要再手动Vue.use(Vuex)
       install(window.Vue)
     }
 
@@ -31,6 +32,7 @@ export class Store {
     this._actionSubscribers = []
     this._mutations = Object.create(null)
     this._wrappedGetters = Object.create(null)
+    // ====== 重要逻辑一 ======：初始化modules的逻辑
     this._modules = new ModuleCollection(options)
     this._modulesNamespaceMap = Object.create(null)
     this._subscribers = []
@@ -39,6 +41,7 @@ export class Store {
 
     // bind commit and dispatch to self
     const store = this
+    // 示例上的dispatch、commit方法
     const { dispatch, commit } = this
     this.dispatch = function boundDispatch (type, payload) {
       return dispatch.call(store, type, payload)
@@ -55,10 +58,12 @@ export class Store {
     // init root module.
     // this also recursively registers all sub-modules
     // and collects all module getters inside this._wrappedGetters
+    // ====== 重要逻辑二 ======：安装modules，定义一些mutations、actions、getters
     installModule(this, state, [], this._modules.root)
 
     // initialize the store vm, which is responsible for the reactivity
     // (also registers _wrappedGetters as computed properties)
+    // ====== 重要逻辑三 ======：响应式处理
     resetStoreVM(this, state)
 
     // apply plugins
@@ -303,6 +308,14 @@ function resetStoreVM (store, state, hot) {
   // some funky global mixins
   const silent = Vue.config.silent
   Vue.config.silent = true
+
+  // 创建一个Vue实例对象，其中的$$state指向store的state对象
+  // 当页面调用$store.state.xxx的时候，实际上会调用Store 实例的get 方法
+  // get state () {
+  //   return this._vm._data.$$state
+  // }
+  // 而get中对调用_vm.data.$$state，从而进行了调用组件的Watcher订阅者的搜集
+  // 当state属性改变时(注意这里对Store实例的set state方法进行了限制，无法直接修改state)，会通知调用组件进行updateComponent
   store._vm = new Vue({
     data: {
       $$state: state
@@ -324,10 +337,12 @@ function resetStoreVM (store, state, hot) {
         oldVm._data.$$state = null
       })
     }
+    // 销毁旧的vm
     Vue.nextTick(() => oldVm.$destroy())
   }
 }
 
+// installModule(this, state, [], this._modules.root)
 function installModule (store, rootState, path, module, hot) {
   const isRoot = !path.length
   const namespace = store._modules.getNamespace(path)
@@ -358,22 +373,26 @@ function installModule (store, rootState, path, module, hot) {
 
   const local = module.context = makeLocalContext(store, namespace, path)
 
+  // 处理mutation
   module.forEachMutation((mutation, key) => {
     const namespacedType = namespace + key
     registerMutation(store, namespacedType, mutation, local)
   })
 
+  // 处理action
   module.forEachAction((action, key) => {
     const type = action.root ? key : namespace + key
     const handler = action.handler || action
     registerAction(store, type, handler, local)
   })
 
+  // 处理getter
   module.forEachGetter((getter, key) => {
     const namespacedType = namespace + key
     registerGetter(store, namespacedType, getter, local)
   })
 
+  // 处理子模块
   module.forEachChild((child, key) => {
     installModule(store, rootState, path.concat(key), child, hot)
   })

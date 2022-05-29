@@ -3,7 +3,7 @@
  * @Autor: lizi
  * @Date: 2022-05-25 16:28:14
  * @LastEditors: lizi
- * @LastEditTime: 2022-05-27 14:51:54
+ * @LastEditTime: 2022-05-28 13:52:32
  * @FilePath: \ylk-vuex\src\mixin.js
  */
 export default function (Vue) {
@@ -37,7 +37,7 @@ export default function (Vue) {
         ? options.store()
         : options.store
     } else if (options.parent && options.parent.$store) {
-      // 子组件取父组件的$store，保证子组件都能访问到$store属性
+      // 子组件的$store指向父组件的$store，保证子组件都能访问到$store属性
       this.$store = options.parent.$store
     }
   }

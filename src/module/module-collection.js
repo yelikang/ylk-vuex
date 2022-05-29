@@ -32,15 +32,19 @@ export default class ModuleCollection {
 
     const newModule = new Module(rawModule, runtime)
     if (path.length === 0) {
+      // 初始化Vuex的时候为空数组
       this.root = newModule
     } else {
+      // path.slice(0, -1)：不包含最后数组最后意向 [1,2,3] => [1,2]
       const parent = this.get(path.slice(0, -1))
       parent.addChild(path[path.length - 1], newModule)
     }
 
     // register nested modules
+    // 判断是否有modules属性，有的话就递归modules中的每个模块，调用register
     if (rawModule.modules) {
       forEachValue(rawModule.modules, (rawChildModule, key) => {
+        // path.concat(key): 这里就是 ['user']、['user','job']
         this.register(path.concat(key), rawChildModule, runtime)
       })
     }
