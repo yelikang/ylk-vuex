@@ -3,7 +3,7 @@
  * @Autor: lizi
  * @Date: 2022-05-25 16:28:14
  * @LastEditors: lizi
- * @LastEditTime: 2022-05-28 13:52:32
+ * @LastEditTime: 2022-06-29 09:29:13
  * @FilePath: \ylk-vuex\src\mixin.js
  */
 export default function (Vue) {
@@ -32,7 +32,7 @@ export default function (Vue) {
     const options = this.$options
     // store injection
     if (options.store) {
-      // 根组件赋值$store
+      // 根组件赋值$store；this.$options.store是在 new Vue({el:'#app', store})时传入的
       this.$store = typeof options.store === 'function'
         ? options.store()
         : options.store
